@@ -1,9 +1,12 @@
+using System;
 using UnityEngine;
 
 public class GridObject : MonoBehaviour
 {
     private bool _isMarked;
     [SerializeField] private GameObject markObject;
+
+
     public void OnClick()
     {
         ChangeValue();
@@ -18,5 +21,10 @@ public class GridObject : MonoBehaviour
     public bool GetValue()
     {
         return _isMarked;
+    }
+
+    public void WinGrid()
+    {
+        ChangeValue();
     }
 }

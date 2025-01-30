@@ -1,5 +1,7 @@
 
+using System.Collections.Generic;
+
 public interface IWinStrategy
 {
-    public bool CanWin(GridSystem<GridObject> grid,out GridObject[] winningGrids);
+    public bool CanWin(GridObject lastMarkedGrid,GridSystem<GridObject> grid,out List<GridObject> winningGrids);
 }

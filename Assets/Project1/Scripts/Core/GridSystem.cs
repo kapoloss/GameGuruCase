@@ -46,9 +46,9 @@ public class GridSystem<TGridObject> where TGridObject : MonoBehaviour
     {
         OnGridObjectChanged?.Invoke(this, new OnGridObjectChangedEventArgs { X = x, Y = y });
     }
-
-    private void GetXY(Vector3 worldPosition, out int x, out int y) {
-        
+    
+    private void GetXY(Vector3 worldPosition, out int x, out int y) 
+    {
         Vector3 adjustedPosition = worldPosition + StartSpace();
     
         x = Mathf.RoundToInt((adjustedPosition.x) / (_config.gridScale + _config.spaceBetweenGrids.x)); 
@@ -127,24 +127,36 @@ public class GridSystem<TGridObject> where TGridObject : MonoBehaviour
         GetXY(worldPosition, out x, out y);
         return GetGridObject(x, y, out value);
     }
+
     
-    public TGridObject FindNeighbour(int x ,int y,Vector2Int neighbour)
+    public bool FindNeighbour(int x ,int y,Vector2Int neighbour, out TGridObject value)
     {
         Vector2Int a = new Vector2Int(x,y) + neighbour;
+        value = null;
         
         if (a is { x: >= 0, y: >= 0} && a.x < _config.gridCount.x && a.y < _config.gridCount.y)
         {
-            return _gridArray[a.x,a.y];
+            value = _gridArray[a.x,a.y];
+            return true;
         }
 
-        return default(TGridObject);
+        return false;
     }
     
-    public TGridObject FindNeighbour(Vector2 worldPosition,Vector2Int neighbour)
+    public bool FindNeighbour(TGridObject obj, Vector2Int neighbour, out TGridObject neighbourGridObject)
+    {
+        int x, y;
+        GetXY(obj.transform.position, out x, out y);
+        
+        return FindNeighbour(x,y,neighbour, out neighbourGridObject);
+    }
+    
+    public bool FindNeighbour(Vector2 worldPosition,Vector2Int neighbour, out TGridObject value)
     {
         int x, y;
         GetXY(worldPosition, out x, out y);
-        return FindNeighbour(x, y, neighbour);
+        
+        return FindNeighbour(x, y, neighbour,out value);
     }
     
 }
