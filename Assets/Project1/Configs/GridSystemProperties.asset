@@ -15,5 +15,5 @@ MonoBehaviour:
   gridCount: {x: 5, y: 5}
   originPosition: {x: 0, y: 0, z: 0}
   gridScale: 1
-  spaceBetweenGrids: {x: 0.1, y: 0.1}
+  spaceBetweenGrids: {x: 0.05, y: 0.05}
   prefab: {fileID: 8309255856664280919, guid: 048f10e8e504f4e1eb7acb82cdc30bfa, type: 3}

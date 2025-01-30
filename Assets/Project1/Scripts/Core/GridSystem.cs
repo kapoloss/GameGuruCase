@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
-public class GridSystem<TGridObject> where TGridObject : MonoBehaviour
+public class GridSystem<TGridObject> : IDisposable where TGridObject : MonoBehaviour
 {
     public event EventHandler<OnGridObjectChangedEventArgs> OnGridObjectChanged;
     public class OnGridObjectChangedEventArgs : EventArgs {
@@ -12,7 +13,7 @@ public class GridSystem<TGridObject> where TGridObject : MonoBehaviour
     
     private readonly GridSystemConfig _config;
     private TGridObject[,] _gridArray;
-    private List<TGridObject> _allGrids;
+    private List<TGridObject> _allGrids = new List<TGridObject>();
     
     public GridSystem(GridSystemConfig config,Func<TGridObject> createGrid)
     {
@@ -31,12 +32,14 @@ public class GridSystem<TGridObject> where TGridObject : MonoBehaviour
                 (_config.gridScale * _config.gridCount.y +
                  _config.spaceBetweenGrids.y * (_config.gridCount.y - 1)) / 2 - _config.gridScale / 2);
         
+        
         for (int x = 0; x < _gridArray.GetLength(0); x++)
         {
             for (int y = 0; y < _gridArray.GetLength(1); y++)
             {
                 _gridArray[x, y] = createGrid();
                 _gridArray[x, y].gameObject.transform.position = GetWorldPosition(x, y);
+                _allGrids.Add(_gridArray[x, y]);
             }
         }
         
@@ -158,5 +161,17 @@ public class GridSystem<TGridObject> where TGridObject : MonoBehaviour
         
         return FindNeighbour(x, y, neighbour,out value);
     }
-    
+
+    public void Dispose()
+    {
+         foreach (var grid in _allGrids)
+         {
+             if (grid != null && grid.gameObject != null)
+             {
+                Object.Destroy(grid.gameObject);
+             }
+         }
+         
+         _allGrids.Clear();
+    }
 }

@@ -1,9 +1,11 @@
 using System;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class InputHandler : MonoBehaviour
 {
     public event Action<Vector2> OnMouseClick;
+    
 
     private void Update()
     {
@@ -16,4 +18,5 @@ public class InputHandler : MonoBehaviour
             }
         }
     }
+    
 }
