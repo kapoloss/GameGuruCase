@@ -36,6 +36,7 @@ public class GridSystem<TGridObject> where TGridObject : MonoBehaviour
             for (int y = 0; y < _gridArray.GetLength(1); y++)
             {
                 _gridArray[x, y] = createGrid();
+                _gridArray[x, y].gameObject.transform.position = GetWorldPosition(x, y);
             }
         }
         
@@ -81,7 +82,7 @@ public class GridSystem<TGridObject> where TGridObject : MonoBehaviour
         return _config.gridScale;
     }
 
-    public Vector3 GetWorldPosition(int x, int y, int z) {
+    public Vector3 GetWorldPosition(int x, int y) {
         
         Vector3 pos = new Vector3(
             x * _config.gridScale + x * _config.spaceBetweenGrids.x, 
@@ -93,7 +94,6 @@ public class GridSystem<TGridObject> where TGridObject : MonoBehaviour
     
     public void SetGridObject(int x, int y, TGridObject value)
     {
-
         Vector3 a = new Vector3(x, y);
 
         if (a is not { x: >= 0, y: >= 0 } || !(a.x < _config.gridCount.x) || !(a.y < _config.gridCount.y)) return;
@@ -108,21 +108,24 @@ public class GridSystem<TGridObject> where TGridObject : MonoBehaviour
         SetGridObject(x, y, value);
     }
     
-    public TGridObject GetGridObject(int x, int y) {
+    public bool GetGridObject(int x, int y,out TGridObject value) {
         
         Vector2 a = new Vector2(x, y);
+        value = null;
         
         if (a is { x: >= 0, y: >= 0,} && a.x < _config.gridCount.x && a.y < _config.gridCount.y ) {
-            return _gridArray[x, y];
+            value = _gridArray[x, y];
+            return true;
         }
 
-        return default(TGridObject);
+        return false;
     }
 
-    public TGridObject GetGridObject(Vector3 worldPosition) {
+    public bool GetGridObject(Vector3 worldPosition, out TGridObject value)
+    {
         int x, y;
         GetXY(worldPosition, out x, out y);
-        return GetGridObject(x, y);
+        return GetGridObject(x, y, out value);
     }
     
     public TGridObject FindNeighbour(int x ,int y,Vector2Int neighbour)
