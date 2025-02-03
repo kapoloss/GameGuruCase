@@ -22,12 +22,14 @@ namespace MyNamespace
 
         private void OnEnable()
         {
-            GameEventBus.PlatformPlacedUnsuccessfully += LevelFailed;
+            GameEventBus.LevelFailed += LevelFailed;
+            GameEventBus.LevelCompleted += LevelCompleted;
         }
 
         private void OnDisable()
         {
-            GameEventBus.PlatformPlacedUnsuccessfully -= LevelFailed;
+            GameEventBus.LevelFailed -= LevelFailed;
+            GameEventBus.LevelCompleted -= LevelCompleted;
         }
 
         private void Update()
@@ -41,7 +43,11 @@ namespace MyNamespace
             _gameStateMachine.SetState(new PlayState(this,inputHandler,platformHandler));
         }
 
-        private void LevelFailed(CutPlatformResult result)
+        private void LevelCompleted()
+        {
+            _gameStateMachine.SetState(new WinState(this));
+        }
+        private void LevelFailed()
         {
             _gameStateMachine.SetState(new FailState(this));
         }
