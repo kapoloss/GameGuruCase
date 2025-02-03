@@ -21,7 +21,7 @@ public static class CutEngine
             cuttingPlatformMock.AddComponent<Rigidbody>();
             Object.Destroy(cuttingPlatformMock,2);
             
-            return new CutPlatformResult(false, null, null);
+            return new CutPlatformResult(false, null, null,xDif);
         }
 
         Vector3 nextPlatformNewScale = initialScale;
@@ -33,7 +33,7 @@ public static class CutEngine
 
         GameObject fallenPart = CreateFallenPart(initialScale, xDif, overlapWidth, cuttingPlatform.transform.position,cuttingPlatform.meshRenderer.material);
 
-        return new CutPlatformResult(true, fallenPart, cuttingPlatform);
+        return new CutPlatformResult(true, fallenPart, cuttingPlatform,xDif);
     }
 
     private static GameObject CreateFallenPart(Vector3 baseScale,
