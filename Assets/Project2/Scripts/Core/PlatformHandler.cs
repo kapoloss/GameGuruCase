@@ -1,4 +1,3 @@
-using System;
 using DG.Tweening;
 using UnityEngine;
 
@@ -10,15 +9,20 @@ public class PlatformHandler : MonoBehaviour
     private Platform _lastPlacedPlatform;
     private LevelConfig _currentLevelConfig;
     private bool _lastIsLeft;
+    private int _currentPlatformIndex;
+    [SerializeField] private GameObject finishPlatform;
+    
     private void Awake()
     {
         _platformRingBuffer = new RingBufferPool<Platform>(
-            10, 
+            15, 
             () =>
             {
                 GameObject obj = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 Platform platform = obj.AddComponent<Platform>();
                 obj.SetActive(false);
+                obj.tag = "Platform";
+                
                 return platform;
             });
         
@@ -74,6 +78,7 @@ public class PlatformHandler : MonoBehaviour
         
         platform.meshRenderer.material = _materialRingBuffer.GetNext();
         platform.transform.DOMoveX(_lastIsLeft ? 5 : -5, _currentLevelConfig.CalculatePlatformFlowSpeed()).SetEase(Ease.Linear);
+        platform.ResizeCollider();
         
         _currentPlatform = platform;
 
@@ -89,13 +94,21 @@ public class PlatformHandler : MonoBehaviour
             platform.GetComponent<MeshFilter>().mesh
             ,_currentLevelConfig.platformConfig.firstPlatformScale);
         
+        platform.ResizeCollider();
+
         platform.meshRenderer.material = _materialRingBuffer.GetNext();
         _lastPlacedPlatform = platform;
     }
 
     private void SetFinishPlatform()
     {
+        Vector3 defPlatformScale = new Vector3(1, 0, 1.8f);
+        Vector3 targetPos = Vector3.forward * (_currentLevelConfig.platformConfig.firstPlatformScale.z * _currentLevelConfig.neededPlatformCountForLevelEnd +
+                                               _currentLevelConfig.platformConfig.firstPlatformScale.z / 2 +
+                                               defPlatformScale.z / 2) + 
+                            Vector3.up * (_currentLevelConfig.platformConfig.firstPlatformScale.y / 2 - defPlatformScale.y / 2);
         
+        finishPlatform.transform.position = targetPos;
     }
 
     private void PlacePlatform()
@@ -118,11 +131,17 @@ public class PlatformHandler : MonoBehaviour
             }
             
             GameEventBus.RaisePlatformPlacedSuccessfully(result);
+            _currentPlatformIndex++;
         }
 
         _lastPlacedPlatform = _currentPlatform;
         _lastIsLeft = !_lastIsLeft;
-        SendNewPlatform();
+
+        if (_currentPlatformIndex < _currentLevelConfig.neededPlatformCountForLevelEnd)
+        {
+            SendNewPlatform();
+
+        }
     }
     
     

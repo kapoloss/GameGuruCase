@@ -20,6 +20,7 @@ public class RunState : IPlayerState
     public void Update()
     {
         _player.transform.Translate(Vector3.forward * (_speed * Time.deltaTime));
+        CheckUnderPlatform();
     }
 
     public void OnExit()
@@ -31,6 +32,32 @@ public class RunState : IPlayerState
     {
         _player.transform.DOKill();
         _player.transform.DOMoveX(result.UpdatedPlatform.transform.position.x, 0.3f);
+    }
+
+    private void CheckUnderPlatform()
+    {
+        Ray ray = new Ray(_player.transform.position + Vector3.up, Vector3.down);
+        LayerMask mask = LayerMask.GetMask("Default");
+        
+        if (Physics.Raycast(ray, out var hit, 5, mask))
+        {
+            if (hit.collider.CompareTag("Platform"))
+            {
+                return;
+            }
+            else if (hit.collider.CompareTag("Finish"))
+            {
+                GameEventBus.RaiseLevelCompleted();
+            }
+            else
+            {
+                GameEventBus.RaiseLevelFailed();
+            }
+        }
+        else
+        {
+            GameEventBus.RaiseLevelFailed();
+        }
     }
     
     

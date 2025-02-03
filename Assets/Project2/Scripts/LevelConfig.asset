@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: LevelConfig
   m_EditorClassIdentifier: 
   platformConfig: {fileID: 11400000, guid: 2be7a0f19b236463eae7aa019f98de09, type: 2}
-  neededPlatformCountForLevelEnd: 10
+  neededPlatformCountForLevelEnd: 6
   gameSpeed: 2

@@ -6,6 +6,9 @@ public static class GameEventBus
     public static event Action PlacePlatformAction;
     public static event Action<CutPlatformResult> PlatformPlacedSuccessfully;
     public static event Action<CutPlatformResult> PlatformPlacedUnsuccessfully;
+
+    public static event Action LevelFailed;
+    public static event Action LevelCompleted;
     
     public static void RaiseLevelStarted(LevelConfig level)
     {
@@ -25,5 +28,14 @@ public static class GameEventBus
     public static void RaisePlatformPlacedUnsuccessfully(CutPlatformResult result)
     {
         PlatformPlacedUnsuccessfully?.Invoke(result);
+    }
+
+    public static void RaiseLevelFailed()
+    {
+        LevelFailed?.Invoke();
+    }
+    public static void RaiseLevelCompleted()
+    {
+        LevelCompleted?.Invoke();
     }
 }

@@ -32,6 +32,8 @@ public static class CutEngine
         MeshHelper.ScaleMeshToDimensions(cuttingPlatform.GetComponent<MeshFilter>().mesh, nextPlatformNewScale);
 
         GameObject fallenPart = CreateFallenPart(initialScale, xDif, overlapWidth, cuttingPlatform.transform.position,cuttingPlatform.meshRenderer.material);
+        
+        cuttingPlatform.ResizeCollider();
 
         return new CutPlatformResult(true, fallenPart, cuttingPlatform,xDif);
     }
