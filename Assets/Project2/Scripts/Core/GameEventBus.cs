@@ -1,0 +1,29 @@
+using System;
+
+public static class GameEventBus
+{
+    public static event Action<LevelConfig> LevelStarted;
+    public static event Action PlacePlatformAction;
+    public static event Action<CutPlatformResult> PlatformPlacedSuccessfully;
+    public static event Action<CutPlatformResult> PlatformPlacedUnsuccessfully;
+    
+    public static void RaiseLevelStarted(LevelConfig level)
+    {
+        LevelStarted?.Invoke(level);
+    }
+
+    public static void RaisePlacePlatformAction()
+    {
+        PlacePlatformAction?.Invoke();
+    }
+
+    public static void RaisePlatformPlacedSuccessfully(CutPlatformResult result)
+    {
+        PlatformPlacedSuccessfully?.Invoke(result);
+    }
+
+    public static void RaisePlatformPlacedUnsuccessfully(CutPlatformResult result)
+    {
+        PlatformPlacedUnsuccessfully?.Invoke(result);
+    }
+}
