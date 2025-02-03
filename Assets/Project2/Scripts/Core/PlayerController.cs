@@ -37,7 +37,7 @@ public class PlayerController : MonoBehaviour
 
     private void StartRun(LevelConfig level)
     {
-        //_animator.SetTrigger("Run");
+        _animator.SetTrigger("Run");
         _playerStateMachine.SetState(new RunState(this,level.CalculatePlayerSpeed()));
     }
     
@@ -65,8 +65,8 @@ public class PlayerController : MonoBehaviour
 
     private void LevelCompleted()
     {
+        _animator.SetTrigger("Dance");
         _playerStateMachine.SetState(new WinState(this));
-
     }
 
     private void LevelFailed()

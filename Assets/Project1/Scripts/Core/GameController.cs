@@ -1,4 +1,5 @@
 using System;
+using MyNamespace;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -9,7 +10,7 @@ public class GameController : MonoBehaviour
     
     [SerializeField] private GridSystemConfig gridSystemConfig;
     [SerializeField] private InputHandler inputHandler;
-    [SerializeField] private CameraHandler cameraHandler;
+    [SerializeField] private MyNamespace.CameraHandler cameraHandler;
     [SerializeField] private Transform gridParent;
     [SerializeField] private int n;
 
