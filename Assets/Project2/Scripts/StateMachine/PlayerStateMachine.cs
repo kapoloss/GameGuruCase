@@ -1,16 +1,22 @@
-public class PlayerStateMachine
+namespace GameGuruCase.Project2.PlayerStateMachine
 {
-    private IPlayerState _currentState;
-    
-    public void SetState(IPlayerState newState)
+    /// <summary>
+    /// Manages the state transitions specific to the player character.
+    /// </summary>
+    public class PlayerStateMachine
     {
-        _currentState?.OnExit();
-        _currentState = newState;
-        _currentState.OnEnter();
-    }
+        private IPlayerState _currentState;
+        
+        public void SetState(IPlayerState newState)
+        {
+            _currentState?.OnExit();
+            _currentState = newState;
+            _currentState.OnEnter();
+        }
     
-    public void Update()
-    {
-        _currentState?.Update();
+        public void Update()
+        {
+            _currentState?.Update();
+        }
     }
 }

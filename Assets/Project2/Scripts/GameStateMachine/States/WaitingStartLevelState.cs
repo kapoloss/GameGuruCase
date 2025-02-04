@@ -1,34 +1,42 @@
-using UnityEngine;
+using GameGuruCase.Project2.Core;
 
-public class WaitingStartLevelState : IGameState
+namespace GameGuruCase.Project2.GameStateMachine.States
 {
-    private readonly MyNamespace.GameController _gameController;
-    private readonly InputHandler _inputHandler;
-    private readonly LevelHandler _levelHandler;
+    /// <summary>
+    /// Waits for player input to start the level, then transitions to play state.
+    /// </summary>
+    public class WaitingStartLevelState : IGameState
+    {
+        private readonly GameController _gameController;
+        private readonly InputHandler _inputHandler;
+        private readonly LevelHandler _levelHandler;
     
-    public WaitingStartLevelState(MyNamespace.GameController gameController, InputHandler inputHandler, LevelHandler levelHandler)
-    {
-        _gameController = gameController;
-        _inputHandler = inputHandler;
-        _levelHandler = levelHandler;
-    }
+        public WaitingStartLevelState(
+            GameController gameController,
+            InputHandler inputHandler,
+            LevelHandler levelHandler)
+        {
+            _gameController = gameController;
+            _inputHandler = inputHandler;
+            _levelHandler = levelHandler;
+        }
 
-    public void OnEnter()
-    {
-        _inputHandler.OnMouseClick += StartLevel;
-    }
+        public void OnEnter()
+        {
+            _inputHandler.OnMouseClick += StartLevel;
+        }
 
-    public void Update() { }
+        public void Update() { }
     
-    public void OnExit()
-    {
-        _inputHandler.OnMouseClick -= StartLevel;
-
-    }
+        public void OnExit()
+        {
+            _inputHandler.OnMouseClick -= StartLevel;
+        }
     
-    private void StartLevel(Vector2 mousePosition)
-    {
-        GameEventBus.RaiseLevelStarted(_levelHandler.GetLevelConfig());
-        _gameController.StartLevel();
+        private void StartLevel(UnityEngine.Vector2 mousePosition)
+        {
+            GameEventBus.RaiseLevelStarted(_levelHandler.GetLevelConfig());
+            _gameController.StartLevel();
+        }
     }
 }

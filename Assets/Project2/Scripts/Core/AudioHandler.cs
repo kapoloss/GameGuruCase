@@ -1,59 +1,81 @@
+using GameGuruCase.Project2.Config;
 using UnityEngine;
 
-public class AudioHandler : MonoBehaviour
+namespace GameGuruCase.Project2.Core
 {
-    public AudioSource audioSource;
-    public AudioConfig audioConfig;
-    private int _perfectCutCount;
-    private float _currentPitch;
-
-    private void Awake()
+    /// <summary>
+    /// Manages audio feedback for perfect or imperfect platform cuts.
+    /// </summary>
+    public class AudioHandler : MonoBehaviour
     {
-        audioSource = GetComponent<AudioSource>();
-        audioSource.clip = audioConfig.noteClip;
-    }
+        public AudioSource audioSource;
+        public AudioConfig audioConfig;
+        private int _perfectCutCount;
+        private float _currentPitch;
 
-    private void OnEnable()
-    {
-        GameEventBus.PlatformPlacedSuccessfully += CheckPerfectCut;
-        GameEventBus.PlatformPlacedUnsuccessfully += ResetPitch;
-    }
-
-    private void OnDisable()
-    {
-        GameEventBus.PlatformPlacedSuccessfully -= CheckPerfectCut;
-        GameEventBus.PlatformPlacedUnsuccessfully -= ResetPitch;
-    }
-
-    private void CheckPerfectCut(CutPlatformResult cutPlatformResult)
-    {
-        float diff = Mathf.Abs(cutPlatformResult.AccuracyRate);
-
-        if (diff <= audioConfig.tolerance)
+        /// <summary>
+        /// Retrieves AudioSource and loads AudioClip.
+        /// </summary>
+        private void Awake()
         {
-            _perfectCutCount++;
-            
-            _currentPitch = audioConfig.basePitch + audioConfig.pitchIncrement * _perfectCutCount;
-            _currentPitch = Mathf.Min(_currentPitch, audioConfig.maxPitch);
-            
-            PlayNoteWithPitch(_currentPitch);
+            audioSource = GetComponent<AudioSource>();
+            audioSource.clip = audioConfig.noteClip;
         }
-        else
+
+        /// <summary>
+        /// Subscribes to relevant game events.
+        /// </summary>
+        private void OnEnable()
         {
-            _perfectCutCount = 0;
-            ResetPitch(null);
+            GameEventBus.PlatformPlacedSuccessfully += CheckPerfectCut;
+            GameEventBus.PlatformPlacedUnsuccessfully += ResetPitch;
         }
-    }
-    
-    private void PlayNoteWithPitch(float pitchValue)
-    {
-        audioSource.pitch = pitchValue;
-        audioSource.PlayOneShot(audioConfig.noteClip);
-    }
-    
-    private void ResetPitch(CutPlatformResult cutPlatformResult)
-    {
-        _currentPitch = audioConfig.basePitch;
-        audioSource.pitch = _currentPitch;
+
+        /// <summary>
+        /// Unsubscribes from game events.
+        /// </summary>
+        private void OnDisable()
+        {
+            GameEventBus.PlatformPlacedSuccessfully -= CheckPerfectCut;
+            GameEventBus.PlatformPlacedUnsuccessfully -= ResetPitch;
+        }
+
+        /// <summary>
+        /// Checks if the cut is within tolerance, updates pitch accordingly.
+        /// </summary>
+        private void CheckPerfectCut(CutPlatformResult cutPlatformResult)
+        {
+            float diff = Mathf.Abs(cutPlatformResult.AccuracyRate);
+            if (diff <= audioConfig.tolerance)
+            {
+                _perfectCutCount++;
+                _currentPitch = audioConfig.basePitch + audioConfig.pitchIncrement * _perfectCutCount;
+                _currentPitch = Mathf.Min(_currentPitch, audioConfig.maxPitch);
+                PlayNoteWithPitch(_currentPitch);
+            }
+            else
+            {
+                _perfectCutCount = 0;
+                ResetPitch(null);
+            }
+        }
+
+        /// <summary>
+        /// Plays note using the current pitch.
+        /// </summary>
+        private void PlayNoteWithPitch(float pitchValue)
+        {
+            audioSource.pitch = pitchValue;
+            audioSource.PlayOneShot(audioConfig.noteClip);
+        }
+
+        /// <summary>
+        /// Resets pitch to the base value.
+        /// </summary>
+        private void ResetPitch(CutPlatformResult cutPlatformResult)
+        {
+            _currentPitch = audioConfig.basePitch;
+            audioSource.pitch = _currentPitch;
+        }
     }
 }

@@ -1,7 +1,12 @@
-public interface IGameState
+namespace GameGuruCase.Project2.GameStateMachine
 {
-
-    void OnEnter();
-    void Update();
-    void OnExit();
+    /// <summary>
+    /// Interface for game states, defining enter, update, and exit methods.
+    /// </summary>
+    public interface IGameState
+    {
+        void OnEnter();
+        void Update();
+        void OnExit();
+    }
 }

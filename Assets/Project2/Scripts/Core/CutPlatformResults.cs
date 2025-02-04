@@ -1,18 +1,24 @@
 using System;
 using UnityEngine;
 
-public class CutPlatformResult : EventArgs
+namespace GameGuruCase.Project2.Core
 {
-    public bool IsSuccessful { get; private set; }
-    public GameObject FallenPart { get; private set; }
-    public Platform UpdatedPlatform { get; private set; }
-    public float AccuracyRate { get; private set; }
-
-    public CutPlatformResult(bool isSuccessful, GameObject fallenPart, Platform updatedPlatform, float accuracyRate)
+    /// <summary>
+    /// Holds the result of a cutting operation, including success, fallen part, updated platform, and accuracy.
+    /// </summary>
+    public class CutPlatformResult : EventArgs
     {
-        IsSuccessful = isSuccessful;
-        FallenPart = fallenPart;
-        UpdatedPlatform = updatedPlatform;
-        AccuracyRate = accuracyRate;
+        public bool IsSuccessful { get; private set; }
+        public GameObject FallenPart { get; private set; }
+        public Platform UpdatedPlatform { get; private set; }
+        public float AccuracyRate { get; private set; }
+
+        public CutPlatformResult(bool isSuccessful, GameObject fallenPart, Platform updatedPlatform, float accuracyRate)
+        {
+            IsSuccessful = isSuccessful;
+            FallenPart = fallenPart;
+            UpdatedPlatform = updatedPlatform;
+            AccuracyRate = accuracyRate;
+        }
     }
 }

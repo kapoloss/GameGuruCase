@@ -1,16 +1,22 @@
-public class GameStateMachine
+namespace GameGuruCase.Project2.GameStateMachine
 {
-    private IGameState _currentState;
-    
-    public void SetState(IGameState newState)
+    /// <summary>
+    /// Core state machine for overall game states.
+    /// </summary>
+    public class GameStateMachine
     {
-        _currentState?.OnExit();
-        _currentState = newState;
-        _currentState.OnEnter();
-    }
+        private IGameState _currentState;
+        
+        public void SetState(IGameState newState)
+        {
+            _currentState?.OnExit();
+            _currentState = newState;
+            _currentState.OnEnter();
+        }
 
-    public void Update()
-    {
-        _currentState?.Update();
+        public void Update()
+        {
+            _currentState?.Update();
+        }
     }
 }

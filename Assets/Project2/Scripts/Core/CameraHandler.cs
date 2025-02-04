@@ -1,60 +1,66 @@
 using Cinemachine;
 using UnityEngine;
 
-public class CameraHandler : MonoBehaviour
+namespace GameGuruCase.Project2.Core
 {
-    [SerializeField] private CinemachineVirtualCamera _runnerCam;
-    [SerializeField] private CinemachineVirtualCamera _winCam;
-    private CinemachineTrackedDolly _winCamDolly;
-
-    private CameraType _currentCamera = CameraType.Runner;
-    [SerializeField] private float dollySpeed = 3;
-
-    private void Awake()
+    /// <summary>
+    /// Handles the active camera mode, switching between runner and win cameras.
+    /// Moves the win camera along a dolly track.
+    /// </summary>
+    public class CameraHandler : MonoBehaviour
     {
-        _winCamDolly = _winCam.GetCinemachineComponent<CinemachineTrackedDolly>();
-    }
+        [SerializeField] private CinemachineVirtualCamera _runnerCam;
+        [SerializeField] private CinemachineVirtualCamera _winCam;
+        private CinemachineTrackedDolly _winCamDolly;
 
-    private void OnEnable()
-    {
-        GameEventBus.LevelCompleted += SetWinCam;
-        GameEventBus.OnNextLevelClicked += SetRunnerCam;
-        GameEventBus.OnRestartClicked += SetRunnerCam;
-    }
+        private CameraType _currentCamera = CameraType.Runner;
+        [SerializeField] private float dollySpeed = 3;
 
-    private void OnDisable()
-    {
-        GameEventBus.LevelCompleted -= SetWinCam;
-        GameEventBus.OnNextLevelClicked += SetRunnerCam;
-        GameEventBus.OnRestartClicked += SetRunnerCam;
-    }
-
-    private void Update()
-    {
-        if (_currentCamera == CameraType.Win)
+        private void Awake()
         {
-            _winCamDolly.m_PathPosition  += dollySpeed * Time.deltaTime;
+            _winCamDolly = _winCam.GetCinemachineComponent<CinemachineTrackedDolly>();
+        }
 
+        private void OnEnable()
+        {
+            GameEventBus.LevelCompleted += SetWinCam;
+            GameEventBus.OnNextLevelClicked += SetRunnerCam;
+            GameEventBus.OnRestartClicked += SetRunnerCam;
+        }
+
+        private void OnDisable()
+        {
+            GameEventBus.LevelCompleted -= SetWinCam;
+            GameEventBus.OnNextLevelClicked -= SetRunnerCam;
+            GameEventBus.OnRestartClicked -= SetRunnerCam;
+        }
+
+        private void Update()
+        {
+            if (_currentCamera == CameraType.Win)
+            {
+                _winCamDolly.m_PathPosition += dollySpeed * Time.deltaTime;
+            }
+        }
+
+        private void SetWinCam()
+        {
+            _currentCamera = CameraType.Win;
+            _winCam.gameObject.SetActive(true);
+            _runnerCam.gameObject.SetActive(false);
+        }
+
+        private void SetRunnerCam()
+        {
+            _currentCamera = CameraType.Runner;
+            _winCam.gameObject.SetActive(false);
+            _runnerCam.gameObject.SetActive(true);
         }
     }
 
-    private void SetWinCam()
+    public enum CameraType
     {
-        _currentCamera = CameraType.Win;
-        _winCam.gameObject.SetActive(true);
-        _runnerCam.gameObject.SetActive(false);
+        Runner,
+        Win
     }
-
-    private void SetRunnerCam()
-    {
-        _currentCamera = CameraType.Runner;
-        _winCam.gameObject.SetActive(false);
-        _runnerCam.gameObject.SetActive(true);
-    }
-}
-
-public enum CameraType
-{
-    Runner,
-    Win
 }

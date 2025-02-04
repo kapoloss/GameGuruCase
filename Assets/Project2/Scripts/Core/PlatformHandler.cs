@@ -1,156 +1,146 @@
 using DG.Tweening;
+using GameGuruCase.Project2.Config;
 using UnityEngine;
 
-public class PlatformHandler : MonoBehaviour
+namespace GameGuruCase.Project2.Core
 {
-    private RingBufferPool<Platform> _platformRingBuffer;
-    private RingBufferPool<Material> _materialRingBuffer;
-    private Platform _currentPlatform;
-    private Platform _lastPlacedPlatform;
-    private LevelConfig _currentLevelConfig;
-    private bool _lastIsLeft;
-    private int _currentPlatformIndex;
-    [SerializeField] private GameObject finishPlatform;
-    
-    private void Awake()
+    /// <summary>
+    /// Manages creation, initialization, and placement of platforms in the scene.
+    /// </summary>
+    public class PlatformHandler : MonoBehaviour
     {
-        _platformRingBuffer = new RingBufferPool<Platform>(
-            15, 
-            () =>
-            {
-                GameObject obj = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                Platform platform = obj.AddComponent<Platform>();
-                obj.SetActive(false);
-                obj.tag = "Platform";
-                
-                return platform;
-            });
+        private RingBufferPool<Platform> _platformRingBuffer;
+        private RingBufferPool<Material> _materialRingBuffer;
+        private Platform _currentPlatform;
+        private Platform _lastPlacedPlatform;
+        private LevelConfig _currentLevelConfig;
+        private bool _lastIsLeft;
+        private int _currentPlatformIndex;
+        [SerializeField] private GameObject finishPlatform;
         
-    }
-
-    private void OnEnable()
-    {
-        GameEventBus.PlacePlatformAction += PlacePlatform;
-    }
-
-    private void OnDisable()
-    {
-        GameEventBus.PlacePlatformAction -= PlacePlatform;
-    }
-
-    public void InitializeLevel(LevelConfig config)
-    {
-        _currentLevelConfig = config;
-        _currentPlatformIndex = 0;
-        
-        var allPlatform = _platformRingBuffer.GetAll();
-
-        foreach (var platform in allPlatform)
+        private void Awake()
         {
-            platform.gameObject.SetActive(false);
+            _platformRingBuffer = new RingBufferPool<Platform>(
+                15,
+                () =>
+                {
+                    GameObject obj = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    Platform platform = obj.AddComponent<Platform>();
+                    obj.SetActive(false);
+                    obj.tag = "Platform";
+                    return platform;
+                });
         }
 
-        Material[] materials = new Material[_currentLevelConfig.platformConfig.platformColors.Count];
-        for (int i = 0; i < _currentLevelConfig.platformConfig.platformColors.Count; i++)
+        private void OnEnable()
         {
-            materials[i] = _currentLevelConfig.platformConfig.platformColors[i];
+            GameEventBus.PlacePlatformAction += PlacePlatform;
         }
-        
-        _materialRingBuffer = new RingBufferPool<Material>(
-            materials.Length,
-            pool: materials);
-        
-        SetFirstPlatform();
-        SetFinishPlatform();
-    }
 
-    public void SendNewPlatform()
-    {
-        Platform platform = _platformRingBuffer.GetNext();
-        platform.gameObject.SetActive(true);
-        
-        Vector3 pos = _lastPlacedPlatform? _lastPlacedPlatform.transform.position : Vector3.zero;
-        pos.x = _lastIsLeft ?  -5 : 5;
-        pos.z += _currentLevelConfig.platformConfig.firstPlatformScale.z;
-
-        platform.transform.position = pos;
-
-        Vector3 targetScale = _currentLevelConfig.platformConfig.firstPlatformScale;
-        targetScale.x = _lastPlacedPlatform
-            ? MeshHelper.GetMeshXSize(_lastPlacedPlatform.GetComponent<MeshFilter>().mesh)
-            : _currentLevelConfig.platformConfig.firstPlatformScale.x;
-        
-        MeshHelper.ScaleMeshToDimensions(
-            platform.GetComponent<MeshFilter>().mesh
-            ,targetScale);
-        
-        platform.meshRenderer.material = _materialRingBuffer.GetNext();
-        platform.transform.DOMoveX(_lastIsLeft ? 5 : -5, _currentLevelConfig.CalculatePlatformFlowSpeed()).SetEase(Ease.Linear);
-        platform.ResizeCollider();
-        
-        _currentPlatform = platform;
-
-    }
-
-    private void SetFirstPlatform()
-    {
-        Platform platform = _platformRingBuffer.GetNext();
-        platform.gameObject.SetActive(true);
-        platform.transform.position = Vector3.zero;
-        
-        MeshHelper.ScaleMeshToDimensions(
-            platform.GetComponent<MeshFilter>().mesh
-            ,_currentLevelConfig.platformConfig.firstPlatformScale);
-        
-        platform.ResizeCollider();
-
-        platform.meshRenderer.material = _materialRingBuffer.GetNext();
-        _lastPlacedPlatform = platform;
-    }
-
-    private void SetFinishPlatform()
-    {
-        Vector3 defPlatformScale = new Vector3(1, 0, 1.8f);
-        Vector3 targetPos = Vector3.forward * (_currentLevelConfig.platformConfig.firstPlatformScale.z * _currentLevelConfig.neededPlatformCountForLevelEnd +
-                                               _currentLevelConfig.platformConfig.firstPlatformScale.z / 2 +
-                                               defPlatformScale.z / 2) + 
-                            Vector3.up * (_currentLevelConfig.platformConfig.firstPlatformScale.y / 2 - defPlatformScale.y / 2);
-        
-        finishPlatform.transform.position = targetPos;
-    }
-
-    private void PlacePlatform()
-    {
-        _currentPlatform?.transform.DOKill();
-
-        if (_currentPlatform && _lastPlacedPlatform)
+        private void OnDisable()
         {
-            CutPlatformResult result = CutEngine.CutPlatform(
-                _lastPlacedPlatform,
-                _currentPlatform,
-                _currentLevelConfig.platformConfig.minXScaleForPlatform,
-                _currentLevelConfig.platformConfig.firstPlatformScale
-            );
+            GameEventBus.PlacePlatformAction -= PlacePlatform;
+        }
 
-            if (!result.IsSuccessful)
+        /// <summary>
+        /// Prepares a level's initial platform states and finish platform.
+        /// </summary>
+        public void InitializeLevel(LevelConfig config)
+        {
+            _currentLevelConfig = config;
+            _currentPlatformIndex = 0;
+            var allPlatform = _platformRingBuffer.GetAll();
+            foreach (var platform in allPlatform)
             {
-                GameEventBus.RaisePlatformPlacedUnsuccessfully(result);
-                return;
+                platform.gameObject.SetActive(false);
             }
-            
-            GameEventBus.RaisePlatformPlacedSuccessfully(result);
-            _currentPlatformIndex++;
+            Material[] materials = new Material[_currentLevelConfig.platformConfig.platformColors.Count];
+            for (int i = 0; i < _currentLevelConfig.platformConfig.platformColors.Count; i++)
+            {
+                materials[i] = _currentLevelConfig.platformConfig.platformColors[i];
+            }
+            _materialRingBuffer = new RingBufferPool<Material>(
+                materials.Length,
+                pool: materials);
+            SetFirstPlatform();
+            SetFinishPlatform();
         }
 
-        _lastPlacedPlatform = _currentPlatform;
-        _lastIsLeft = !_lastIsLeft;
-
-        
-        if (_currentPlatformIndex < _currentLevelConfig.neededPlatformCountForLevelEnd)
+        /// <summary>
+        /// Spawns a new platform and sends it from left or right to center.
+        /// </summary>
+        public void SendNewPlatform()
         {
-            SendNewPlatform();
+            Platform platform = _platformRingBuffer.GetNext();
+            platform.gameObject.SetActive(true);
+            Vector3 pos = _lastPlacedPlatform ? _lastPlacedPlatform.transform.position : Vector3.zero;
+            pos.x = _lastIsLeft ? -5 : 5;
+            pos.z += _currentLevelConfig.platformConfig.firstPlatformScale.z;
+            platform.transform.position = pos;
+            Vector3 targetScale = _currentLevelConfig.platformConfig.firstPlatformScale;
+            targetScale.x = _lastPlacedPlatform
+                ? MeshHelper.GetMeshXSize(_lastPlacedPlatform.GetComponent<MeshFilter>().mesh)
+                : _currentLevelConfig.platformConfig.firstPlatformScale.x;
+            MeshHelper.ScaleMeshToDimensions(platform.GetComponent<MeshFilter>().mesh, targetScale);
+            platform.meshRenderer.material = _materialRingBuffer.GetNext();
+            platform.transform.DOMoveX(_lastIsLeft ? 5 : -5, _currentLevelConfig.CalculatePlatformFlowSpeed())
+                             .SetEase(Ease.Linear);
+            platform.ResizeCollider();
+            _currentPlatform = platform;
+        }
+
+        private void SetFirstPlatform()
+        {
+            Platform platform = _platformRingBuffer.GetNext();
+            platform.gameObject.SetActive(true);
+            platform.transform.position = Vector3.zero;
+            MeshHelper.ScaleMeshToDimensions(platform.GetComponent<MeshFilter>().mesh, 
+                _currentLevelConfig.platformConfig.firstPlatformScale);
+            platform.ResizeCollider();
+            platform.meshRenderer.material = _materialRingBuffer.GetNext();
+            _lastPlacedPlatform = platform;
+        }
+
+        private void SetFinishPlatform()
+        {
+            Vector3 defPlatformScale = new Vector3(1, 0, 1.8f);
+            Vector3 targetPos = 
+                Vector3.forward *
+                (_currentLevelConfig.platformConfig.firstPlatformScale.z
+                 * _currentLevelConfig.neededPlatformCountForLevelEnd
+                 + _currentLevelConfig.platformConfig.firstPlatformScale.z / 2
+                 + defPlatformScale.z / 2) 
+                + Vector3.up *
+                (_currentLevelConfig.platformConfig.firstPlatformScale.y / 2
+                 - defPlatformScale.y / 2);
+            finishPlatform.transform.position = targetPos;
+        }
+
+        private void PlacePlatform()
+        {
+            _currentPlatform?.transform.DOKill();
+            if (_currentPlatform && _lastPlacedPlatform)
+            {
+                CutPlatformResult result = CutEngine.CutPlatform(
+                    _lastPlacedPlatform,
+                    _currentPlatform,
+                    _currentLevelConfig.platformConfig.minXScaleForPlatform,
+                    _currentLevelConfig.platformConfig.firstPlatformScale
+                );
+                if (!result.IsSuccessful)
+                {
+                    GameEventBus.RaisePlatformPlacedUnsuccessfully(result);
+                    return;
+                }
+                GameEventBus.RaisePlatformPlacedSuccessfully(result);
+                _currentPlatformIndex++;
+            }
+            _lastPlacedPlatform = _currentPlatform;
+            _lastIsLeft = !_lastIsLeft;
+            if (_currentPlatformIndex < _currentLevelConfig.neededPlatformCountForLevelEnd)
+            {
+                SendNewPlatform();
+            }
         }
     }
-    
-    
 }

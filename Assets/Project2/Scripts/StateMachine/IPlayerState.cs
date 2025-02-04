@@ -1,8 +1,12 @@
-public interface IPlayerState
+namespace GameGuruCase.Project2.PlayerStateMachine
 {
-    void OnEnter();
-    
-    void Update();
-    
-    void OnExit();
+    /// <summary>
+    /// Interface for player states, defining enter, update, and exit methods.
+    /// </summary>
+    public interface IPlayerState
+    {
+        void OnEnter();
+        void Update();
+        void OnExit();
+    }
 }

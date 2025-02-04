@@ -1,92 +1,97 @@
-using System;
+using GameGuruCase.Project2.Config;
+using GameGuruCase.Project2.PlayerStateMachine.States;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour
-{ 
-    private Animator _animator;
-    private Rigidbody _rb;
-    private PlayerStateMachine _playerStateMachine;
-    private Vector3 _firstPos;
-    
-    private void Awake()
+namespace GameGuruCase.Project2.Core
+{
+    /// <summary>
+    /// Manages the player character, including animations, ragdoll, and state transitions.
+    /// </summary>
+    public class PlayerController : MonoBehaviour
     {
+        private Animator _animator;
+        private Rigidbody _rb;
+        private PlayerStateMachine.PlayerStateMachine _playerStateMachine;
+        private Vector3 _firstPos;
         
-        _animator = GetComponent<Animator>();
-        _rb = GetComponent<Rigidbody>();
+        private void Awake()
+        {
+            _animator = GetComponent<Animator>();
+            _rb = GetComponent<Rigidbody>();
+            _playerStateMachine = new PlayerStateMachine.PlayerStateMachine();
+            _playerStateMachine.SetState(new WaitingToStartState(this));
+            _firstPos = transform.position;
+        }
+
+        private void Update()
+        {
+            _playerStateMachine.Update();
+        }
+
+        private void OnEnable()
+        {
+            GameEventBus.LevelStarted += StartRun;
+            GameEventBus.LevelCompleted += LevelCompleted;
+            GameEventBus.LevelFailed += LevelFailed;
+            GameEventBus.OnRestartClicked += RestartLevel;
+            GameEventBus.OnNextLevelClicked += RestartLevel;
+        }
+
+        private void OnDisable()
+        {
+            GameEventBus.LevelStarted -= StartRun;
+            GameEventBus.LevelCompleted -= LevelCompleted;
+            GameEventBus.LevelFailed -= LevelFailed;
+            GameEventBus.OnRestartClicked -= RestartLevel;
+            GameEventBus.OnNextLevelClicked -= RestartLevel;
+        }
+
+        /// <summary>
+        /// Invoked when the level starts. Triggers run animation and run state.
+        /// </summary>
+        private void StartRun(LevelConfig level)
+        {
+            _animator.SetTrigger("Run");
+            _playerStateMachine.SetState(new RunState(this, level.CalculatePlayerSpeed()));
+        }
         
-        _playerStateMachine = new PlayerStateMachine();
-        _playerStateMachine.SetState(new WaitingToStartState(this));
-        _firstPos = transform.position;
-    }
-
-    private void Update()
-    {
-       _playerStateMachine.Update();
-    }
-
-    private void OnEnable()
-    {
-        GameEventBus.LevelStarted += StartRun;
-        GameEventBus.LevelCompleted += LevelCompleted;
-        GameEventBus.LevelFailed += LevelFailed;
-        GameEventBus.OnRestartClicked += RestartLevel;
-        GameEventBus.OnNextLevelClicked += RestartLevel;
-    }
-
-    private void OnDisable()
-    {
-        GameEventBus.LevelStarted -= StartRun;
-        GameEventBus.LevelCompleted -= LevelCompleted;
-        GameEventBus.LevelFailed -= LevelFailed;
-        GameEventBus.OnRestartClicked -= RestartLevel;
-        GameEventBus.OnNextLevelClicked -= RestartLevel;
-    }
-
-    private void StartRun(LevelConfig level)
-    {
-        _animator.SetTrigger("Run");
-        _playerStateMachine.SetState(new RunState(this,level.CalculatePlayerSpeed()));
-    }
-    
-    private void SetRagdollActive(bool enable)
-    {
-        if (_animator != null)
+        private void SetRagdollActive(bool enable)
         {
-            _animator.enabled = !enable;
+            if (_animator != null)
+            {
+                _animator.enabled = !enable;
+            }
+            Rigidbody[] rigidbodies = transform.GetComponentsInChildren<Rigidbody>();
+            foreach (var rb in rigidbodies)
+            {
+                rb.isKinematic = !enable;
+                rb.useGravity = enable;
+            }
+            Collider[] colliders = transform.GetComponentsInChildren<Collider>();
+            foreach (var col in colliders)
+            {
+                col.enabled = enable;
+            }
         }
 
-        Rigidbody[] rigidbodies = transform.GetComponentsInChildren<Rigidbody>();
-        foreach (var rb in rigidbodies)
+        private void LevelCompleted()
         {
-            rb.isKinematic = !enable;
-            rb.useGravity = enable;
+            _animator.SetTrigger("Dance");
+            _playerStateMachine.SetState(new WinState(this));
         }
 
-        Collider[] colliders = transform.GetComponentsInChildren<Collider>();
-        foreach (var col in colliders)
+        private void LevelFailed()
         {
-            col.enabled = enable;
+            _playerStateMachine.SetState(new FailState(this));
+            SetRagdollActive(true);
         }
 
-    }
-
-    private void LevelCompleted()
-    {
-        _animator.SetTrigger("Dance");
-        _playerStateMachine.SetState(new WinState(this));
-    }
-
-    private void LevelFailed()
-    {
-        _playerStateMachine.SetState(new FailState(this));
-        SetRagdollActive(true);
-    }
-
-    private void RestartLevel()
-    {
-        SetRagdollActive(false);
-        _animator.SetTrigger("Idle");
-        transform.position = _firstPos;
-        _playerStateMachine.SetState(new WaitingToStartState(this));
+        private void RestartLevel()
+        {
+            SetRagdollActive(false);
+            _animator.SetTrigger("Idle");
+            transform.position = _firstPos;
+            _playerStateMachine.SetState(new WaitingToStartState(this));
+        }
     }
 }
