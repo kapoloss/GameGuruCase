@@ -6,14 +6,17 @@ public class PlayerController : MonoBehaviour
     private Animator _animator;
     private Rigidbody _rb;
     private PlayerStateMachine _playerStateMachine;
-
+    private Vector3 _firstPos;
+    
     private void Awake()
     {
+        
         _animator = GetComponent<Animator>();
         _rb = GetComponent<Rigidbody>();
         
         _playerStateMachine = new PlayerStateMachine();
         _playerStateMachine.SetState(new WaitingToStartState(this));
+        _firstPos = transform.position;
     }
 
     private void Update()
@@ -26,6 +29,8 @@ public class PlayerController : MonoBehaviour
         GameEventBus.LevelStarted += StartRun;
         GameEventBus.LevelCompleted += LevelCompleted;
         GameEventBus.LevelFailed += LevelFailed;
+        GameEventBus.OnRestartClicked += RestartLevel;
+        GameEventBus.OnNextLevelClicked += RestartLevel;
     }
 
     private void OnDisable()
@@ -33,6 +38,8 @@ public class PlayerController : MonoBehaviour
         GameEventBus.LevelStarted -= StartRun;
         GameEventBus.LevelCompleted -= LevelCompleted;
         GameEventBus.LevelFailed -= LevelFailed;
+        GameEventBus.OnRestartClicked -= RestartLevel;
+        GameEventBus.OnNextLevelClicked -= RestartLevel;
     }
 
     private void StartRun(LevelConfig level)
@@ -73,5 +80,13 @@ public class PlayerController : MonoBehaviour
     {
         _playerStateMachine.SetState(new FailState(this));
         SetRagdollActive(true);
+    }
+
+    private void RestartLevel()
+    {
+        SetRagdollActive(false);
+        _animator.SetTrigger("Idle");
+        transform.position = _firstPos;
+        _playerStateMachine.SetState(new WaitingToStartState(this));
     }
 }

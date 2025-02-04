@@ -37,5 +37,9 @@ public class RingBufferPool<T>
         return item;
     }
 
+    public T[] GetAll()
+    {
+        return _pool;
+    }
 
 }

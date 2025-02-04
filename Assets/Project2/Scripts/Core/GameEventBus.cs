@@ -9,6 +9,8 @@ public static class GameEventBus
 
     public static event Action LevelFailed;
     public static event Action LevelCompleted;
+    public static event Action OnRestartClicked;
+    public static event Action OnNextLevelClicked;
     
     public static void RaiseLevelStarted(LevelConfig level)
     {
@@ -37,5 +39,15 @@ public static class GameEventBus
     public static void RaiseLevelCompleted()
     {
         LevelCompleted?.Invoke();
+    }
+
+    public static void RaiseOnRestartClicked()
+    {
+        OnRestartClicked?.Invoke();
+    }
+
+    public static void RaiseOnNextLevelClicked()
+    {
+        OnNextLevelClicked?.Invoke();
     }
 }

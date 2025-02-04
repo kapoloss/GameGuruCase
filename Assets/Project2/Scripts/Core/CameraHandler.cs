@@ -18,11 +18,15 @@ public class CameraHandler : MonoBehaviour
     private void OnEnable()
     {
         GameEventBus.LevelCompleted += SetWinCam;
+        GameEventBus.OnNextLevelClicked += SetRunnerCam;
+        GameEventBus.OnRestartClicked += SetRunnerCam;
     }
 
     private void OnDisable()
     {
         GameEventBus.LevelCompleted -= SetWinCam;
+        GameEventBus.OnNextLevelClicked += SetRunnerCam;
+        GameEventBus.OnRestartClicked += SetRunnerCam;
     }
 
     private void Update()

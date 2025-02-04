@@ -41,6 +41,14 @@ public class PlatformHandler : MonoBehaviour
     public void InitializeLevel(LevelConfig config)
     {
         _currentLevelConfig = config;
+        _currentPlatformIndex = 0;
+        
+        var allPlatform = _platformRingBuffer.GetAll();
+
+        foreach (var platform in allPlatform)
+        {
+            platform.gameObject.SetActive(false);
+        }
 
         Material[] materials = new Material[_currentLevelConfig.platformConfig.platformColors.Count];
         for (int i = 0; i < _currentLevelConfig.platformConfig.platformColors.Count; i++)
@@ -137,10 +145,10 @@ public class PlatformHandler : MonoBehaviour
         _lastPlacedPlatform = _currentPlatform;
         _lastIsLeft = !_lastIsLeft;
 
+        
         if (_currentPlatformIndex < _currentLevelConfig.neededPlatformCountForLevelEnd)
         {
             SendNewPlatform();
-
         }
     }
     

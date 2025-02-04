@@ -16,20 +16,23 @@ namespace MyNamespace
         private void Awake()
         {
             _gameStateMachine = new GameStateMachine();
-            _gameStateMachine.SetState(new WaitingStartLevelState(this,inputHandler,levelHandler));
-            platformHandler.InitializeLevel(levelHandler.GetLevelConfig());
+            SetLevel();
         }
 
         private void OnEnable()
         {
             GameEventBus.LevelFailed += LevelFailed;
             GameEventBus.LevelCompleted += LevelCompleted;
+            GameEventBus.OnRestartClicked += RestartLevel;
+            GameEventBus.OnNextLevelClicked += SetLevel;
         }
 
         private void OnDisable()
         {
             GameEventBus.LevelFailed -= LevelFailed;
             GameEventBus.LevelCompleted -= LevelCompleted;
+            GameEventBus.OnRestartClicked -= RestartLevel;
+            GameEventBus.OnNextLevelClicked -= SetLevel;
         }
 
         private void Update()
@@ -50,6 +53,20 @@ namespace MyNamespace
         private void LevelFailed()
         {
             _gameStateMachine.SetState(new FailState(this));
+        }
+
+        private void RestartLevel()
+        {
+            _gameStateMachine.SetState(new WaitingStartLevelState(this,inputHandler,levelHandler));
+            platformHandler.InitializeLevel(levelHandler.GetLevelConfig());
+            
+        }
+
+        private void SetLevel()
+        {
+            _gameStateMachine.SetState(new WaitingStartLevelState(this,inputHandler,levelHandler));
+            platformHandler.InitializeLevel(levelHandler.GetLevelConfig());
+
         }
         
     }
