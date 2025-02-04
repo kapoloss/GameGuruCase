@@ -5,6 +5,7 @@ public class RunState : IPlayerState
 {
     private readonly PlayerController _player;
     private readonly float _speed;
+    private float _fallTimer;
     
     public RunState(PlayerController player,float speed)
     {
@@ -51,12 +52,23 @@ public class RunState : IPlayerState
             }
             else
             {
-                GameEventBus.RaiseLevelFailed();
+                _fallTimer += Time.deltaTime;
+                if (_fallTimer >= 0.3f)
+                {
+                    GameEventBus.RaiseLevelFailed();
+                    _fallTimer = 0;
+                }
             }
         }
         else
         {
-            GameEventBus.RaiseLevelFailed();
+            _fallTimer += Time.deltaTime;
+            if (_fallTimer >= 0.3f)
+            {
+                GameEventBus.RaiseLevelFailed();
+                _fallTimer = 0;
+            }
+            
         }
     }
     

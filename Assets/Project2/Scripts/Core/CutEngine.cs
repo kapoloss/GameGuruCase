@@ -18,7 +18,7 @@ public static class CutEngine
         {
             GameObject cuttingPlatformMock = Object.Instantiate(cuttingPlatform.gameObject, cuttingPlatform.transform.position, Quaternion.identity);
             cuttingPlatform.gameObject.SetActive(false);
-            float torqueRandomness = 50;
+            float torqueRandomness = 20;
             cuttingPlatformMock.AddComponent<Rigidbody>().AddTorque(
                 new Vector3(Random.Range(-torqueRandomness, torqueRandomness), Random.Range(-torqueRandomness, torqueRandomness), Random.Range(-torqueRandomness, torqueRandomness)));
             Object.Destroy(cuttingPlatformMock,2);
