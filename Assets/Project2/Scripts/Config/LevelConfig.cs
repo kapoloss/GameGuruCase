@@ -10,24 +10,29 @@ namespace  GameGuruCase.Project2.Config
     {
         public PlatformConfig platformConfig;
         public int neededPlatformCountForLevelEnd;
-        public float gameSpeed;
+        //public float gameSpeed;
+        public float gameStartSpeed;
+        public float gameEndSpeed;
 
         /// <summary>
         /// Calculates the player's running speed based on gameSpeed.
         /// </summary>
-        public float CalculatePlayerSpeed()
+        private float CalculateGameSpeed(int currentPlatformIndex)
         {
-            return gameSpeed;
+            float dif = gameEndSpeed - gameStartSpeed;
+            
+            return gameStartSpeed + (dif / neededPlatformCountForLevelEnd) * currentPlatformIndex;
         }
 
         /// <summary>
         /// Calculates how quickly platforms will move or flow horizontally.
         /// </summary>
-        public float CalculatePlatformFlowSpeed()
+        public float CalculatePlatformFlowSpeed(int currentPlatformIndex)
         {
             float platformZ = platformConfig.firstPlatformScale.z;
-            float time = platformZ / CalculatePlayerSpeed();
+            float time = platformZ / CalculateGameSpeed(currentPlatformIndex);
             return time * 1.75f;
+        
         }
     }
 }

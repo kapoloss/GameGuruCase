@@ -1,6 +1,5 @@
 using DG.Tweening;
 using GameGuruCase.Project2.Core;
-using MyNamespace;
 using UnityEngine;
 
 namespace GameGuruCase.Project2.PlayerStateMachine.States
@@ -11,13 +10,11 @@ namespace GameGuruCase.Project2.PlayerStateMachine.States
     public class RunState : IPlayerState
     {
         private readonly PlayerController _player;
-        private readonly float _speed;
         private float _fallTimer;
     
-        public RunState(PlayerController player, float speed)
+        public RunState(PlayerController player)
         {
             _player = player;
-            _speed = speed;
         }
 
         public void OnEnter()
@@ -27,7 +24,7 @@ namespace GameGuruCase.Project2.PlayerStateMachine.States
 
         public void Update()
         {
-            _player.transform.Translate(Vector3.forward * (_speed * Time.deltaTime));
+            _player.transform.Translate(Vector3.forward * (_player.GetSpeed() * Time.deltaTime));
             CheckUnderPlatform();
         }
 

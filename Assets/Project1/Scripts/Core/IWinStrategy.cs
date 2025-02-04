@@ -1,7 +1,12 @@
-
 using System.Collections.Generic;
 
-public interface IWinStrategy
+namespace GameGuruCase.Project1.Core
 {
-    public bool CanWin(GridObject lastMarkedGrid,GridSystem<GridObject> grid,out List<GridObject> winningGrids);
+    /// <summary>
+    /// Interface for defining a winning condition strategy on a grid system.
+    /// </summary>
+    public interface IWinStrategy
+    {
+        bool CanWin(GridObject lastMarkedGrid, GridSystem<GridObject> grid, out List<GridObject> winningGrids);
+    }
 }

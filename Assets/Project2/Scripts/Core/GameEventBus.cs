@@ -9,9 +9,10 @@ namespace GameGuruCase.Project2.Core
     public static class GameEventBus
     {
         public static event Action<LevelConfig> LevelStarted;
+        public static event Action<PlatformRouteArgs> PlatformOnRoute;
         public static event Action PlacePlatformAction;
         public static event Action<CutPlatformResult> PlatformPlacedSuccessfully;
-        public static event Action<CutPlatformResult> PlatformPlacedUnsuccessfully;
+        public static event Action PlatformPlacedUnsuccessfully;
         public static event Action LevelFailed;
         public static event Action LevelCompleted;
         public static event Action OnRestartClicked;
@@ -22,6 +23,10 @@ namespace GameGuruCase.Project2.Core
             LevelStarted?.Invoke(level);
         }
 
+        public static void RaisePlatformOnRoute(PlatformRouteArgs args)
+        {
+            PlatformOnRoute?.Invoke(args);
+        }
         public static void RaisePlacePlatformAction()
         {
             PlacePlatformAction?.Invoke();
@@ -32,9 +37,9 @@ namespace GameGuruCase.Project2.Core
             PlatformPlacedSuccessfully?.Invoke(result);
         }
 
-        public static void RaisePlatformPlacedUnsuccessfully(CutPlatformResult result)
+        public static void RaisePlatformPlacedUnsuccessfully()
         {
-            PlatformPlacedUnsuccessfully?.Invoke(result);
+            PlatformPlacedUnsuccessfully?.Invoke();
         }
 
         public static void RaiseLevelFailed()

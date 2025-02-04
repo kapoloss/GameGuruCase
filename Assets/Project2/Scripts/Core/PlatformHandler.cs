@@ -83,9 +83,10 @@ namespace GameGuruCase.Project2.Core
                 : _currentLevelConfig.platformConfig.firstPlatformScale.x;
             MeshHelper.ScaleMeshToDimensions(platform.GetComponent<MeshFilter>().mesh, targetScale);
             platform.meshRenderer.material = _materialRingBuffer.GetNext();
-            platform.transform.DOMoveX(_lastIsLeft ? 5 : -5, _currentLevelConfig.CalculatePlatformFlowSpeed())
+            platform.transform.DOMoveX(_lastIsLeft ? 5 : -5, _currentLevelConfig.CalculatePlatformFlowSpeed(_currentPlatformIndex))
                              .SetEase(Ease.Linear);
             platform.ResizeCollider();
+            GameEventBus.RaisePlatformOnRoute(new PlatformRouteArgs(platform.transform.position,_currentLevelConfig.CalculatePlatformFlowSpeed(_currentPlatformIndex)));
             _currentPlatform = platform;
         }
 
@@ -129,7 +130,7 @@ namespace GameGuruCase.Project2.Core
                 );
                 if (!result.IsSuccessful)
                 {
-                    GameEventBus.RaisePlatformPlacedUnsuccessfully(result);
+                    GameEventBus.RaisePlatformPlacedUnsuccessfully();
                     return;
                 }
                 GameEventBus.RaisePlatformPlacedSuccessfully(result);

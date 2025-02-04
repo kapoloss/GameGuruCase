@@ -28,7 +28,8 @@ namespace GameGuruCase.Project2.Core
         private void OnEnable()
         {
             GameEventBus.PlatformPlacedSuccessfully += CheckPerfectCut;
-            GameEventBus.PlatformPlacedUnsuccessfully += ResetPitch;
+            GameEventBus.PlatformPlacedUnsuccessfully +=  ResetPitch;
+            GameEventBus.OnRestartClicked += ResetPitch;
         }
 
         /// <summary>
@@ -38,6 +39,8 @@ namespace GameGuruCase.Project2.Core
         {
             GameEventBus.PlatformPlacedSuccessfully -= CheckPerfectCut;
             GameEventBus.PlatformPlacedUnsuccessfully -= ResetPitch;
+            GameEventBus.OnRestartClicked -= ResetPitch;
+
         }
 
         /// <summary>
@@ -56,7 +59,7 @@ namespace GameGuruCase.Project2.Core
             else
             {
                 _perfectCutCount = 0;
-                ResetPitch(null);
+                ResetPitch();
             }
         }
 
@@ -72,7 +75,7 @@ namespace GameGuruCase.Project2.Core
         /// <summary>
         /// Resets pitch to the base value.
         /// </summary>
-        private void ResetPitch(CutPlatformResult cutPlatformResult)
+        private void ResetPitch()
         {
             _currentPitch = audioConfig.basePitch;
             audioSource.pitch = _currentPitch;

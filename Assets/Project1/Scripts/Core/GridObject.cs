@@ -1,30 +1,34 @@
-using System;
 using UnityEngine;
 
-public class GridObject : MonoBehaviour
+namespace GameGuruCase.Project1.Core
 {
-    private bool _isMarked;
-    [SerializeField] private GameObject markObject;
-
-
-    public void OnClick()
+    /// <summary>
+    /// Represents a single cell or tile in the grid, toggling a mark on click.
+    /// </summary>
+    public class GridObject : MonoBehaviour
     {
-        ChangeValue();
-    }
+        private bool _isMarked;
+        [SerializeField] private GameObject markObject;
 
-    private void ChangeValue()
-    {
-        _isMarked = !_isMarked;
-        markObject.SetActive(_isMarked);
-    }
+        public void OnClick()
+        {
+            ChangeValue();
+        }
 
-    public bool GetValue()
-    {
-        return _isMarked;
-    }
+        private void ChangeValue()
+        {
+            _isMarked = !_isMarked;
+            markObject.SetActive(_isMarked);
+        }
 
-    public void WinGrid()
-    {
-        ChangeValue();
+        public bool GetValue()
+        {
+            return _isMarked;
+        }
+
+        public void WinGrid()
+        {
+            ChangeValue();
+        }
     }
 }

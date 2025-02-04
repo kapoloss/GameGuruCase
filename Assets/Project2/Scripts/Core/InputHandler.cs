@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace GameGuruCase.Project1.Core
+namespace GameGuruCase.Project2.Core
 {
     /// <summary>
     /// Handles mouse input and emits a world position via OnMouseClick when the player clicks.

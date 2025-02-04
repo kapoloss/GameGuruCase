@@ -1,4 +1,5 @@
 using GameGuruCase.Project2.Core;
+using GameController = GameGuruCase.Project2.Core.GameController;
 
 namespace GameGuruCase.Project2.GameStateMachine.States
 {

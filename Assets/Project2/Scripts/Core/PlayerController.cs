@@ -13,6 +13,7 @@ namespace GameGuruCase.Project2.Core
         private Rigidbody _rb;
         private PlayerStateMachine.PlayerStateMachine _playerStateMachine;
         private Vector3 _firstPos;
+        private float _speed;
         
         private void Awake()
         {
@@ -35,6 +36,7 @@ namespace GameGuruCase.Project2.Core
             GameEventBus.LevelFailed += LevelFailed;
             GameEventBus.OnRestartClicked += RestartLevel;
             GameEventBus.OnNextLevelClicked += RestartLevel;
+            GameEventBus.PlatformOnRoute += SetSpeed;
         }
 
         private void OnDisable()
@@ -44,6 +46,8 @@ namespace GameGuruCase.Project2.Core
             GameEventBus.LevelFailed -= LevelFailed;
             GameEventBus.OnRestartClicked -= RestartLevel;
             GameEventBus.OnNextLevelClicked -= RestartLevel;
+            GameEventBus.PlatformOnRoute -= SetSpeed;
+
         }
 
         /// <summary>
@@ -52,7 +56,7 @@ namespace GameGuruCase.Project2.Core
         private void StartRun(LevelConfig level)
         {
             _animator.SetTrigger("Run");
-            _playerStateMachine.SetState(new RunState(this, level.CalculatePlayerSpeed()));
+            _playerStateMachine.SetState(new RunState(this));
         }
         
         private void SetRagdollActive(bool enable)
@@ -92,6 +96,20 @@ namespace GameGuruCase.Project2.Core
             _animator.SetTrigger("Idle");
             transform.position = _firstPos;
             _playerStateMachine.SetState(new WaitingToStartState(this));
+        }
+
+        private void SetSpeed(PlatformRouteArgs routeArgs)
+        {
+            float currentZ = transform.position.z;
+            float targetZ = routeArgs.Position.z;
+            float difZ = targetZ - currentZ;
+            float targetTime = routeArgs.TimeForRouteEnd;
+
+            _speed = difZ / targetTime;
+        }
+        public float GetSpeed()
+        {
+            return _speed;
         }
     }
 }

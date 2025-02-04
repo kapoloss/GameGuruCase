@@ -1,45 +1,50 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
-public class ThreeNeighboursStrategy : IWinStrategy
+namespace GameGuruCase.Project1.Core
 {
-    private readonly Vector2Int[] _neighbours = new Vector2Int[]
+    /// <summary>
+    /// A sample win strategy that checks if the current marked grid has at least three connected neighbors.
+    /// </summary>
+    public class ThreeNeighboursStrategy : IWinStrategy
     {
-        new Vector2Int(-1, 0), 
-        new Vector2Int(1, 0),
-        new Vector2Int(0, -1),
-        new Vector2Int(0, 1),
-    };
-    
-
-    public bool CanWin(GridObject lastMarkedGrid, GridSystem<GridObject> grid, out List<GridObject> winningGrids)
-    {
-        winningGrids = new List<GridObject>();
-        HashSet<GridObject> checkedGrids = new HashSet<GridObject>();
-        Queue<GridObject> queue = new Queue<GridObject>();
-
-        if (lastMarkedGrid == null || !lastMarkedGrid.GetValue()) return false;
-
-        queue.Enqueue(lastMarkedGrid);
-        checkedGrids.Add(lastMarkedGrid);
-
-        while (queue.Count > 0)
+        private readonly Vector2Int[] _neighbours = new Vector2Int[]
         {
-            GridObject current = queue.Dequeue();
-            winningGrids.Add(current);
+            new Vector2Int(-1, 0),
+            new Vector2Int(1, 0),
+            new Vector2Int(0, -1),
+            new Vector2Int(0, 1),
+        };
 
-            foreach (var direction in _neighbours)
+        public bool CanWin(GridObject lastMarkedGrid, GridSystem<GridObject> grid, out List<GridObject> winningGrids)
+        {
+            winningGrids = new List<GridObject>();
+            HashSet<GridObject> checkedGrids = new HashSet<GridObject>();
+            Queue<GridObject> queue = new Queue<GridObject>();
+
+            if (lastMarkedGrid == null || !lastMarkedGrid.GetValue()) return false;
+
+            queue.Enqueue(lastMarkedGrid);
+            checkedGrids.Add(lastMarkedGrid);
+
+            while (queue.Count > 0)
             {
-                if (grid.FindNeighbour(current, direction, out var neighbour) && neighbour.GetValue() && !checkedGrids.Contains(neighbour))
+                GridObject current = queue.Dequeue();
+                winningGrids.Add(current);
+
+                foreach (var direction in _neighbours)
                 {
-                    queue.Enqueue(neighbour);
-                    checkedGrids.Add(neighbour);
+                    if (grid.FindNeighbour(current, direction, out var neighbour) &&
+                        neighbour.GetValue() &&
+                        !checkedGrids.Contains(neighbour))
+                    {
+                        queue.Enqueue(neighbour);
+                        checkedGrids.Add(neighbour);
+                    }
                 }
             }
+
+            return winningGrids.Count >= 3;
         }
-        
-        return winningGrids.Count >= 3;
-    }}
+    }
+}
